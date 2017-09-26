@@ -6,19 +6,17 @@
 #include <stdexcept>
 
 template<typename T>
-concept bool FloatingPoint = std::is_floating_point<T>::value;
+using if_unsigned_integral = std::enable_if_t<std::is_unsigned_v<T> && std::is_integral_v<T>, T>;
 
 template<typename T>
-concept bool Integral = std::is_integral<T>::value;
+using if_signed_integral = std::enable_if_t<std::is_signed_v<T> && std::is_integral_v<T>, T>;
 
 template<typename T>
-concept bool UnsignedIntegral = Integral<T> && std::is_unsigned<T>::value;
+using if_floating_point = std::enable_if_t<std::is_floating_point_v<T>, T>;
 
 template<typename T>
-concept bool SignedIntegral = Integral<T> && !UnsignedIntegral<T>;
+using if_bit_readable = std::enable_if_t<std::is_floating_point_v<T> || std::is_integral_v<T>, T>;
 
-template<typename T>
-concept bool BitReadable = Integral<T> || FloatingPoint<T>;
 
 namespace rb::common {
 
@@ -28,17 +26,22 @@ namespace rb::common {
     {
         static constexpr const size_t max_bits = 8 * sizeof(T);
         static constexpr const size_t min_bits = 0;
-        static constexpr const bool is_signed = std::is_signed<T>::value;
+        static constexpr const bool is_signed = std::is_signed_v<T>;
     };
 
     //--------------------------------------------------------------------------
-    template<FloatingPoint T>
-    struct bit_read_helper<T>
+    template<typename T>
+    struct floating_point_bit_read_helper
     {
         static constexpr const size_t max_bits = 8 * sizeof(T);
         static constexpr const size_t min_bits = 8 * sizeof(T);
-        static constexpr const bool is_signed = std::is_signed<T>::value;
+        static constexpr const bool is_signed = std::is_signed_v<T>;
     };
+
+    //--------------------------------------------------------------------------
+    template<> struct bit_read_helper<float>: floating_point_bit_read_helper<float> {};
+    template<> struct bit_read_helper<double>: floating_point_bit_read_helper<double> {};
+    template<> struct bit_read_helper<long double>: floating_point_bit_read_helper<long double> {};
 
     //--------------------------------------------------------------------------
     class bitreader {
@@ -49,42 +52,63 @@ namespace rb::common {
         void set_data(const uint8_t* data, size_t length) {
             _data = data;
             _data_end = data + length;
-            _state.ptr = 0;
+            _state.ptr = data;
             _next(_state);
         }
 
         //----------------------------------------------------------------------
-        template<typename T, size_t Size> T read()
+        template<typename T>
+        if_unsigned_integral<T> read(size_t bits)
         {
-            0 = 0;
-        }
-
-        //----------------------------------------------------------------------
-        template<UnsignedIntegral T, size_t Size> T read()
-        {
-            _validate_read_static<T, Size>();
-
-            T ret = 0;
-            _read(_state, Size, ret);
+            _validate_read_dynamic<T>(bits);
+            T ret = T(0);
+            _read(_state, bits, ret);
             return ret;
         }
 
         //----------------------------------------------------------------------
-        template<SignedIntegral T, size_t Size> T read()
+        template<typename T>
+        if_signed_integral<T> read(size_t bits)
         {
-            _validate_read_static<T, Size>();
-
-            T ret = 0;
-            _read(_state, Size, ret);
-            T m = 1U << (Size - 1);
+            _validate_read_dynamic<T>(bits);
+            T ret = T(0);
+            _read(_state, bits, ret);
+            T m = 1U << (bits - 1);
             return (ret ^ m) - m;
         }
 
         //----------------------------------------------------------------------
-        template<FloatingPoint T, size_t Size> T read()
+        template<typename T>
+        if_unsigned_integral<T> peek(size_t bits)
         {
-            _validate_read_static<T, Size>();
-            assert(false && "Reading Floating Point Data is not implementer in bitstream");
+            _validate_read_dynamic<T>(bits);
+            T ret = T(0);
+            _peek(_state, bits, ret);
+            return ret;
+        }
+
+        //----------------------------------------------------------------------
+        template<typename T>
+        if_signed_integral<T> peek(size_t bits)
+        {
+            _validate_read_dynamic<T>(bits);
+            T ret = T(0);
+            _peek(_state, bits, ret);
+            T m = 1U << (bits - 1);
+            return (ret ^ m) - m;
+        }
+
+
+        //----------------------------------------------------------------------
+        size_t position() const
+        {
+            return _position(_state);
+        }
+
+        //----------------------------------------------------------------------
+        size_t available() const
+        {
+            return _available(_state);
         }
 
         //----------------------------------------------------------------------
@@ -145,8 +169,11 @@ namespace rb::common {
 
             static constexpr const size_t buffer_bits = sizeof(state.buffer) * 8;
             size_t leaps = bits / buffer_bits;
-            state.ptr += leaps * buffer_bits;
-            _next(state);
+            if (leaps > 0) {
+                state.ptr += leaps * buffer_bits;
+                _next(state);
+            }
+
             size_t rest = bits % buffer_bits;
             if (rest < state.shift) {
                 state.shift -= rest;
@@ -160,14 +187,13 @@ namespace rb::common {
         }
 
         //----------------------------------------------------------------------
-        size_t _position(internal_state& state) const
+        size_t _position(const internal_state& state) const
         {
-            static constexpr const size_t buffer_bits = sizeof(state.buffer) * 8;
-            return (state.ptr - _data)*8 + (buffer_bits - state.shift);
+            return (_state.ptr - _data) * 8 - state.shift;
         }
 
         //----------------------------------------------------------------------
-        size_t _available(internal_state& state) const
+        size_t _available(const internal_state& state) const
         {
             return (_data_end - state.ptr) * 8 + state.shift;
         }
@@ -185,7 +211,7 @@ namespace rb::common {
         template<typename T>
         static constexpr T _mask(size_t bits)
         {
-            return (T(1) << bits) - 1;
+            return (bits == sizeof(T)*8) ? (~0) : ((T(1) << bits) - 1);
         }
 
         //----------------------------------------------------------------------
@@ -212,6 +238,7 @@ namespace rb::common {
             } else {
                 bits -= state.shift;
                 _elementary_read(state, state.shift, ret);
+                ret <<= bits;
                 _next(state);
                 _elementary_read(state, bits, ret);
             }
