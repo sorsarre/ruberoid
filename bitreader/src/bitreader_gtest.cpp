@@ -118,3 +118,143 @@ TEST(bitreaderTest, read_signed_nonaligned)
     EXPECT_EQ(16, br.position());
     EXPECT_EQ(0, br.available());
 }
+
+//------------------------------------------------------------------------------
+TEST(bitreaderTest, skip_non_cross_aligned)
+{
+    const uint8_t data[] = {0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88, 0x99};
+    bitreader br;
+    br.set_data(data, sizeof(data));
+    EXPECT_NO_THROW(br.skip(3*8));
+    EXPECT_EQ(24, br.position());
+    EXPECT_EQ(48, br.available());
+    EXPECT_EQ(0x445, br.read<uint16_t>(12));
+}
+
+//------------------------------------------------------------------------------
+TEST(bitreaderTest, skip_non_cross_unaligned)
+{
+    const uint8_t data[] = {0x11, 0x22, 0x33, 0x44, 0x55};
+    bitreader br;
+    br.set_data(data, sizeof(data));
+    EXPECT_NO_THROW(br.skip(7));
+    EXPECT_EQ(7, br.position());
+    EXPECT_EQ(33, br.available());
+    EXPECT_EQ(0x122, br.peek<uint16_t>(9));
+    EXPECT_EQ(7, br.position());
+    EXPECT_EQ(33, br.available());
+    EXPECT_NO_THROW(br.skip(21));
+    EXPECT_EQ(28, br.position());
+    EXPECT_EQ(12, br.available());
+    EXPECT_EQ(0x455, br.read<uint16_t>(12));
+    EXPECT_EQ(40, br.position());
+    EXPECT_EQ(0, br.available());
+}
+
+//------------------------------------------------------------------------------
+TEST(bitreaderTest, skip_cross_aligned)
+{
+    const uint8_t data[] = {0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88, 0x99, 0xAA};
+    bitreader br;
+    br.set_data(data, sizeof(data));
+    EXPECT_NO_THROW(br.skip(72));
+    EXPECT_EQ(72, br.position());
+    EXPECT_EQ(8, br.available());
+    EXPECT_EQ(0xAA, br.read<uint8_t>(8));
+}
+
+//------------------------------------------------------------------------------
+TEST(bitreaderTest, skip_cross_unaligned)
+{
+    const uint8_t data[] = {0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88, 0x99, 0xAA};
+    bitreader br;
+    br.set_data(data, sizeof(data));
+    EXPECT_NO_THROW(br.skip(74));
+    EXPECT_EQ(74, br.position());
+    EXPECT_EQ(6, br.available());
+    EXPECT_EQ(0b10'1010, br.read<uint8_t>(6));
+}
+
+//------------------------------------------------------------------------------
+TEST(bitreaderTest, peek_non_cross_aligned)
+{
+    const uint8_t data[] = {0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88, 0x99, 0xAA};
+    bitreader br;
+    br.set_data(data, sizeof(data));
+    EXPECT_EQ(0x1122, br.peek<uint16_t>(16));
+    EXPECT_EQ(0, br.position());
+    EXPECT_EQ(0x1122, br.read<uint16_t>(16));
+    EXPECT_EQ(16, br.position());
+    EXPECT_EQ(0x3344, br.peek<uint16_t>(16));
+    EXPECT_EQ(16, br.position());
+    EXPECT_EQ(0x3344, br.read<uint16_t>(16));
+    EXPECT_EQ(32, br.position());
+}
+
+//------------------------------------------------------------------------------
+TEST(bitreaderTest, peek_non_cross_unaligned)
+{
+    const uint8_t data[] = {0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88, 0x99, 0xAA};
+    bitreader br;
+    br.set_data(data, sizeof(data));
+    EXPECT_EQ(0x112, br.peek<uint16_t>(12));
+    EXPECT_EQ(0, br.position());
+    EXPECT_EQ(0x112, br.read<uint16_t>(12));
+    EXPECT_EQ(12, br.position());
+    EXPECT_EQ(0x233, br.peek<uint16_t>(12));
+    EXPECT_EQ(12, br.position());
+    EXPECT_EQ(0x23344, br.read<uint32_t>(20));
+    EXPECT_EQ(32, br.position());
+}
+
+//------------------------------------------------------------------------------
+TEST(bitreaderTest, peek_cross_aligned)
+{
+    const uint8_t data[] = {0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88, 0x99, 0xAA};
+    bitreader br;
+    br.set_data(data, sizeof(data));
+    EXPECT_NO_THROW(br.skip(48));
+    EXPECT_EQ(48, br.position());
+    EXPECT_EQ(0x778899, br.peek<uint32_t>(24));
+    EXPECT_EQ(48, br.position());
+    EXPECT_EQ(0x778899AA, br.read<uint32_t>(32));
+}
+
+//------------------------------------------------------------------------------
+TEST(bitreaderTest, peek_cross_unaligned)
+{
+    const uint8_t data[] = {0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88, 0x99, 0xAA};
+    bitreader br;
+    br.set_data(data, sizeof(data));
+    EXPECT_NO_THROW(br.skip(52));
+    EXPECT_EQ(52, br.position());
+    EXPECT_EQ(0x78899A, br.peek<uint32_t>(24));
+    EXPECT_EQ(52, br.position());
+    EXPECT_EQ(0x78899AA, br.read<uint32_t>(28));
+}
+
+//------------------------------------------------------------------------------
+TEST(bitreaderTest, align_lt_byte_aligned)
+{
+    const uint8_t data[] = {0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88, 0x99, 0xAA};
+    bitreader br;
+    br.set_data(data, sizeof(data));
+    EXPECT_NO_THROW(br.align(5));
+    EXPECT_EQ(0, br.position());
+    EXPECT_NO_THROW(br.skip(10));
+    EXPECT_EQ(10, br.position());
+    EXPECT_NO_THROW(br.align(5));
+    EXPECT_EQ(10, br.position());
+}
+
+//------------------------------------------------------------------------------
+TEST(bitreaderTest, align_lt_byte_unaligned)
+{
+    const uint8_t data[] = {0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88, 0x99, 0xAA};
+    bitreader br;
+    br.set_data(data, sizeof(data));
+    EXPECT_NO_THROW(br.skip(2));
+    EXPECT_EQ(2, br.position());
+    EXPECT_NO_THROW(br.align(5));
+    EXPECT_EQ(5, br.position());
+}
