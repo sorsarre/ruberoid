@@ -173,22 +173,16 @@ namespace rb::common {
                 throw std::runtime_error("Cannot skip beyond end of bitstream");
             }
 
-            static constexpr const size_t buffer_bits = sizeof(state.buffer) * 8;
-            size_t leaps = bits / buffer_bits;
-            if (leaps > 0) {
-                state.ptr += leaps * buffer_bits;
-                _next(state);
-            }
-
-            size_t rest = bits % buffer_bits;
-            if (rest < state.shift) {
-                state.shift -= rest;
-            } else if (rest == state.shift) {
+            if (bits < state.shift) {
+                state.shift -= bits;
+            } else if (bits == state.shift) {
                 _next(state);
             } else {
-                rest -= state.shift;
+                size_t to_skip = bits - state.shift;
+                state.shift = 0;
+                state.ptr += to_skip / 8;
                 _next(state);
-                state.shift -= rest;
+                state.shift -= to_skip % 8;
             }
         }
 
