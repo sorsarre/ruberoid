@@ -73,8 +73,7 @@ namespace rb::common {
             _validate_read_dynamic<T>(bits);
             T ret = T(0);
             _read(_state, bits, ret);
-            T m = 1U << (bits - 1);
-            return (ret ^ m) - m;
+            return _sign_extend(ret, bits);
         }
 
         //----------------------------------------------------------------------
@@ -94,8 +93,7 @@ namespace rb::common {
             _validate_read_dynamic<T>(bits);
             T ret = T(0);
             _peek(_state, bits, ret);
-            T m = 1U << (bits - 1);
-            return (ret ^ m) - m;
+            return _sign_extend(ret, bits);
         }
 
 
@@ -142,6 +140,14 @@ namespace rb::common {
             size_t shift = 0;
             const uint8_t* ptr = nullptr;
         };
+
+        //----------------------------------------------------------------------
+        template<typename T>
+        T _sign_extend(T raw, size_t bits)
+        {
+            T m = 1U << (bits - 1);
+            return (raw ^ m) - m;
+        }
 
         //----------------------------------------------------------------------
         void _next(internal_state& state) const
