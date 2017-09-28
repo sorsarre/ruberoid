@@ -201,7 +201,8 @@ namespace rb::common {
         //----------------------------------------------------------------------
         void _align(internal_state& state, size_t bits) const
         {
-            size_t advance = _position(state) % bits;
+            // TODO: Rewrite
+            size_t advance = (bits - (_position(state) % bits)) % bits;
             if (advance) {
                 _skip(state, advance);
             }
