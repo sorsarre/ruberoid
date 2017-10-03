@@ -10,6 +10,7 @@ set(BITREADER_SOURCES
 
 set(BITREADER_HEADERS
         include/ruberoid/bitreader/bitreader.hpp
+        include/ruberoid/data_source/memory_byte_source.hpp
         include/ruberoid/common/shared_buffer.hpp)
 
 add_library(bitreader STATIC ${BITREADER_SOURCES} ${BITREADER_HEADERS})
