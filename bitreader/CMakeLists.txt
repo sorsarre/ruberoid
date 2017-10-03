@@ -9,7 +9,8 @@ set(BITREADER_SOURCES
         src/bitreader.cpp)
 
 set(BITREADER_HEADERS
-        include/ruberoid/bitreader/bitreader.hpp)
+        include/ruberoid/bitreader/bitreader.hpp
+        include/ruberoid/common/shared_buffer.hpp)
 
 add_library(bitreader STATIC ${BITREADER_SOURCES} ${BITREADER_HEADERS})
 target_include_directories(bitreader PRIVATE ${CMAKE_CURRENT_LIST_DIR}/src)
