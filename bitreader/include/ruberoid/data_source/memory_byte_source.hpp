@@ -10,6 +10,12 @@ namespace rb::common
     {
     public:
         //----------------------------------------------------------------------
+        memory_byte_source()
+        {
+            _current = nullptr;
+        }
+
+        //----------------------------------------------------------------------
         memory_byte_source(const uint8_t* data, size_t size)
             : _data(shared_buffer::copy_mem(data, size))
         {
