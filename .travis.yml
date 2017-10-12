@@ -12,6 +12,16 @@ addons:
       - gcc-7
       - g++-7
       - cmake
+install:
+  - pushd ~
+  - wget https://cmake.org/files/v3.9/cmake-3.9.4.tar.gz
+  - tar zxvf cmake-3.9.4.tar.gz
+  - pushd cmake-3.9.4
+  - ./configure --prefix=/usr
+  - make
+  - sudo make install
+  - popd
+  - popd
 script:
   # Link gcc-6 and g++-6 to their standard commands
   - ln -s /usr/bin/gcc-7 /usr/local/bin/gcc
