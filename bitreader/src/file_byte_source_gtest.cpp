@@ -1,13 +1,16 @@
 #include <gtest/gtest.h>
-#include "ruberoid/data_source/memory_byte_source.hpp"
+#include <ruberoid/data_source/file_byte_source.hpp>
 #include "gtest_common.hpp"
 
 using namespace rb::common;
 
 //------------------------------------------------------------------------------
-TEST(memoryByteSourceTest, emptyCtor)
+TEST(fileByteSourceTest, emptyCtor)
 {
-    memory_byte_source src;
+    const size_t size = 0;
+    auto data = std::make_shared<fake_file_reader>(size);
+    file_byte_source src(data);
+
     EXPECT_ANY_THROW(src.get());
     EXPECT_NO_THROW(src.next());
     EXPECT_TRUE(src.depleted());
@@ -23,11 +26,11 @@ TEST(memoryByteSourceTest, emptyCtor)
 }
 
 //------------------------------------------------------------------------------
-TEST(memoryByteSourceTest, basic)
+TEST(fileByteSourceTest, basic)
 {
     const size_t size = 10;
-    auto data = generate_test_data(size);
-    memory_byte_source src(data, size);
+    auto data = std::make_shared<fake_file_reader>(size);
+    file_byte_source src(data);
 
     for (size_t iter = 0; iter < size; ++iter) {
         EXPECT_EQ(size-iter, src.available());
@@ -59,16 +62,14 @@ TEST(memoryByteSourceTest, basic)
     EXPECT_EQ(0, src.available());
     EXPECT_ANY_THROW(src.skip(1));
     EXPECT_EQ(0, src.available());
-
-    delete[] data;
 }
 
 //------------------------------------------------------------------------------
-TEST(memoryByteSourceTest, skip)
+TEST(fileByteSourceTest, skip)
 {
     const size_t size = 10;
-    auto data = generate_test_data(size);
-    memory_byte_source src(data, size);
+    auto data = std::make_shared<fake_file_reader>(size);
+    file_byte_source src(data);
 
     EXPECT_EQ(1, src.get());
     EXPECT_EQ(size, src.available());
@@ -82,11 +83,11 @@ TEST(memoryByteSourceTest, skip)
 }
 
 //------------------------------------------------------------------------------
-TEST(memoryByteSourceTest, seek)
+TEST(fileByteSourceTest, seek)
 {
     const size_t size = 10;
-    auto data = generate_test_data(size);
-    memory_byte_source src(data, size);
+    auto data = std::make_shared<fake_file_reader>(size);
+    file_byte_source src(data);
 
     EXPECT_EQ(1, src.get());
     EXPECT_EQ(size, src.available());
