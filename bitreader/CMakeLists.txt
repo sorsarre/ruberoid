@@ -39,7 +39,8 @@ add_executable(common_gtest
         src/shared_buffer_gtest.cpp
         src/memory_byte_source_gtest.cpp
         src/file_byte_source_gtest.cpp
-        src/gtest_common.hpp)
+        src/gtest_common.hpp
+        src/gtest_common_gtest.cpp)
 
 target_include_directories(common_gtest PRIVATE
         ${GTEST_INCLUDE_DIRS}
