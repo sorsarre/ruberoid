@@ -31,13 +31,18 @@ namespace rb::common
                 load_buffer();
             }
 
+            if (_buffer.size() == 0 && available() == 0) {
+                throw std::runtime_error("Cannot read beyond the end of the file");
+            }
             return _buffer.get()[_position - _last];
         }
 
         //----------------------------------------------------------------------
         void next()
         {
-            ++_position;
+            if (available() > 0) {
+                ++_position;
+            }
         }
 
         //----------------------------------------------------------------------

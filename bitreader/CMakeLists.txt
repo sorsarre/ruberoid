@@ -11,7 +11,11 @@ set(BITREADER_SOURCES
 set(BITREADER_HEADERS
         include/ruberoid/bitreader/bitreader.hpp
         include/ruberoid/data_source/memory_byte_source.hpp
-        include/ruberoid/common/shared_buffer.hpp include/ruberoid/data_source/file_byte_source.hpp include/ruberoid/common/file_reader.hpp include/ruberoid/common/direct_file_reader.hpp)
+        include/ruberoid/common/shared_buffer.hpp
+        include/ruberoid/data_source/file_byte_source.hpp
+        include/ruberoid/common/file_reader.hpp
+        include/ruberoid/common/direct_file_reader.hpp
+    )
 
 add_library(bitreader STATIC ${BITREADER_SOURCES} ${BITREADER_HEADERS})
 target_include_directories(bitreader PRIVATE ${CMAKE_CURRENT_LIST_DIR}/src)
@@ -33,7 +37,9 @@ add_test(AllTestsBitreader bitreader_gtest)
 ############## Common gtest
 add_executable(common_gtest
         src/shared_buffer_gtest.cpp
-        src/memory_byte_source_gtest.cpp)
+        src/memory_byte_source_gtest.cpp
+        src/file_byte_source_gtest.cpp
+    )
 
 target_include_directories(common_gtest PRIVATE
         ${GTEST_INCLUDE_DIRS}
