@@ -5,6 +5,8 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Werror -pedantic")
 
+
+############ Bitreader
 set(BITREADER_SOURCES
         src/bitreader.cpp)
 
@@ -21,6 +23,26 @@ add_library(bitreader STATIC ${BITREADER_SOURCES} ${BITREADER_HEADERS})
 target_include_directories(bitreader PRIVATE ${CMAKE_CURRENT_LIST_DIR}/src)
 target_include_directories(bitreader PUBLIC ${CMAKE_CURRENT_LIST_DIR}/include)
 
+############# Runtime
+set(RUNTIME_SOURCES
+        src/runtime/value.cpp
+    )
+
+set(RUNTIME_HEADERS
+        include/ruberoid/runtime/value.hpp
+        include/ruberoid/runtime/field.hpp
+        include/ruberoid/runtime/context.hpp
+        include/ruberoid/runtime/array.hpp
+        include/ruberoid/runtime/instruction.hpp
+        include/ruberoid/runtime/execution.hpp
+        include/ruberoid/runtime/execution_context.hpp
+    )
+
+add_library(rbruntime SHARED ${RUNTIME_SOURCES} ${RUNTIME_HEADERS})
+target_include_directories(rbruntime PRIVATE ${CMAKE_CURRENT_LIST_DIR}/src)
+target_include_directories(rbruntime PUBLIC ${CMAKE_CURRENT_LIST_DIR}/include)
+
+############# Unit tests
 enable_testing()
 find_package(GTest REQUIRED)
 
