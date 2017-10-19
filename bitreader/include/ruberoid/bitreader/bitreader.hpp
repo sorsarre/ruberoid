@@ -12,6 +12,9 @@ template<typename T>
 using if_signed_integral = std::enable_if_t<std::is_signed_v<T> && std::is_integral_v<T>, T>;
 
 template<typename T>
+using if_integral = std::enable_if_t<std::is_integral_v<T>, T>;
+
+template<typename T>
 using if_floating_point = std::enable_if_t<std::is_floating_point_v<T>, T>;
 
 template<typename T>
@@ -58,17 +61,7 @@ namespace rb::common {
 
         //----------------------------------------------------------------------
         template<typename T>
-        if_unsigned_integral<T> read(size_t bits)
-        {
-            _validate_read_dynamic<T>(bits);
-            T ret = T(0);
-            _read(_state, bits, ret);
-            return ret;
-        }
-
-        //----------------------------------------------------------------------
-        template<typename T>
-        if_signed_integral<T> read(size_t bits)
+        if_integral<T> read(size_t bits)
         {
             _validate_read_dynamic<T>(bits);
             T ret = T(0);
@@ -78,17 +71,7 @@ namespace rb::common {
 
         //----------------------------------------------------------------------
         template<typename T>
-        if_unsigned_integral<T> peek(size_t bits)
-        {
-            _validate_read_dynamic<T>(bits);
-            T ret = T(0);
-            _peek(_state, bits, ret);
-            return ret;
-        }
-
-        //----------------------------------------------------------------------
-        template<typename T>
-        if_signed_integral<T> peek(size_t bits)
+        if_integral<T> peek(size_t bits)
         {
             _validate_read_dynamic<T>(bits);
             T ret = T(0);
@@ -143,10 +126,17 @@ namespace rb::common {
 
         //----------------------------------------------------------------------
         template<typename T>
-        T _sign_extend(T raw, size_t bits)
+        if_signed_integral<T> _sign_extend(T raw, size_t bits)
         {
             T m = 1U << (bits - 1);
             return (raw ^ m) - m;
+        }
+
+        //----------------------------------------------------------------------
+        template<typename T>
+        if_unsigned_integral<T> _sign_extend(T raw, size_t bits)
+        {
+            return raw;
         }
 
         //----------------------------------------------------------------------
