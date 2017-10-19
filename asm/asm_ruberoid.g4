@@ -2,24 +2,7 @@
 grammar asm_ruberoid;
 
 program
-    : (line? EOL)+
-    ;
-
-section
-    : section_id
-    | section_code
-    ;
-
-section_id
-    : section_id_header section_id_body
-    ;
-
-section_id_header
-    : SECTION_ID_HEADER
-    ;
-
-section_id_body
-    : (line_id? EOL)+
+    : section_code
     ;
 
 section_code
@@ -38,23 +21,6 @@ line
     : comment
     | instruction
     | label
-    ;
-
-line_id
-    : comment
-    | id_declaration
-    ;
-
-id_declaration
-    : id_type id hexid
-    ;
-
-id_type
-    : ID_TYPE
-    ;
-
-hexid
-    : '{' HEXID '}'
     ;
 
 instruction
@@ -141,15 +107,7 @@ OPCODE
     | 'SLOTD'
     | 'CALL'
     | 'RET'
-    | 'VARU8'
-    | 'VARU16'
-    | 'VARU32'
-    | 'VARU64'
-    | 'VARS8'
-    | 'VARS16'
-    | 'VARS32'
-    | 'VARS64'
-    | 'VARD'
+    | 'VAR'
     | 'MOV'
     | 'JL'
     | 'JNL'
