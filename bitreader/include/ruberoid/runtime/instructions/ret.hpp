@@ -6,15 +6,18 @@ namespace rb::runtime::instructions
     class ret: public instruction
     {
     public:
-        static constexpr const std::string name = "ret";
+        static const std::string name() { return "ret"; }
 
         //----------------------------------------------------------------------
-        ret(const std::vector<std::string>& args) = default;
+        ret(const std::vector<std::string>& args)
+        {
+
+        }
 
         //----------------------------------------------------------------------
         virtual void exec(execution_context& context, common::bitreader& reader)
         {
-            context._position = _frame_stack.top();
+            context._position = context._frame_stack.top();
             context._frame_stack.pop();
         }
     };

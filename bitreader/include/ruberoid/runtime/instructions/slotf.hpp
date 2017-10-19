@@ -6,7 +6,7 @@ namespace rb::runtime::instructions
     class slotf: public instruction
     {
     public:
-        static constexpr const std::string name = "slotf";
+        static const std::string name() { return "slotf"; }
 
         //----------------------------------------------------------------------
         slotf(const std::vector<std::string>& args)
@@ -18,7 +18,7 @@ namespace rb::runtime::instructions
         virtual void exec(execution_context& context, common::bitreader& reader)
         {
             auto new_slot = std::make_shared<value>();
-            context._context_stack.top()->field(_field_name)->set(new_slot);
+            context._context_stack.current_context()->set_field(_field_name, new_slot);
             context._slot_stack.push(new_slot);
         }
 

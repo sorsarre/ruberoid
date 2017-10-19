@@ -1,4 +1,5 @@
 #pragma once
+#include <boost/lexical_cast.hpp>
 #include "ruberoid/runtime/instruction.hpp"
 
 namespace rb::runtime::instructions
@@ -30,16 +31,29 @@ namespace rb::runtime::instructions
     class brd: public instruction
     {
     public:
-        static constexpr const std::string name = "ret";
-
-        //----------------------------------------------------------------------
-        ret(const std::vector<std::string>& args) = default;
-
-        //----------------------------------------------------------------------
-        virtual void exec(execution_context& context, common::bitreader& reader)
-        {
-            context._position = _frame_stack.top();
-            context._frame_stack.pop();
+        static const std::string name() {
+            return std::string("brd") +
+                   (std::is_signed_v<T> ? "s" : "u") +
+                   std::string(bit_string<T>());
         }
+
+        //----------------------------------------------------------------------
+        brd(const std::vector<std::string>& args)
+        {
+            _target = args.at(0);
+            _bits = boost::lexical_cast<size_t>(args.at(1));
+        }
+
+        //----------------------------------------------------------------------
+        void exec(execution_context& context, common::bitreader& reader) override
+        {
+            auto value = context._context_stack.resolve(_target);
+            value->set(reader.read<T>(_bits));
+        }
+
+    private:
+        size_t _bits;
+        std::string _target;
+
     };
 }

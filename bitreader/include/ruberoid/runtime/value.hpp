@@ -57,10 +57,6 @@ namespace rb::runtime
 
         //----------------------------------------------------------------------
         template<typename T>
-        void set(const T& set) = delete;
-
-        //----------------------------------------------------------------------
-        template<typename T>
         std::enable_if_t<std::is_scalar_v<T>> set(const T& actual)
         {
             _actual = actual;
@@ -91,7 +87,7 @@ namespace rb::runtime
 
         //----------------------------------------------------------------------
         template<typename T>
-        T& get() const
+        T& get()
         {
             return std::any_cast<T&>(_actual);
         }

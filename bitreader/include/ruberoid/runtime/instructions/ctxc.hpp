@@ -6,7 +6,7 @@ namespace rb::runtime::instructions
     class ctxc: public instruction
     {
     public:
-        static constexpr const std::string name = "ctxc";
+        static const std::string name() { return "ctxc"; }
 
         //----------------------------------------------------------------------
         ctxc(const std::vector<std::string>& args)
@@ -15,11 +15,18 @@ namespace rb::runtime::instructions
         }
 
         //----------------------------------------------------------------------
-        virtual void exec(execution_context& context, common::bitreader& reader)
+        virtual void exec(execution_context& ctx, common::bitreader& reader)
         {
+            // Create new context and push it onto the runtime environment
             auto new_ctx = std::make_shared<context>(_ctxid);
-            context._slot_stack.top()->set(new_ctx);
-            context._context_stack.push(new_ctx);
+            ctx._context_stack.push_context(new_ctx);
+
+            // Fill the current slot with the newly created context
+            ctx._slot_stack.top()->set(new_ctx);
+
+            // Add local scope in front of the context
+            auto new_scope = std::make_shared<context>("");
+            ctx._context_stack.push_scope(new_scope);
         }
 
     private:

@@ -6,7 +6,7 @@ namespace rb::runtime::instructions
     class call: public instruction
     {
     public:
-        static constexpr const std::string name = "call";
+        static const std::string name() { return "call"; }
 
         //----------------------------------------------------------------------
         call(const std::vector<std::string>& args)
@@ -17,8 +17,8 @@ namespace rb::runtime::instructions
         //----------------------------------------------------------------------
         virtual void exec(execution_context& context, common::bitreader& reader)
         {
-            // TODO: No label reference info available in the program currently... :(
-            size_t jump_to = _position; // FIXME: Jump to function location
+            // FIXME: No label reference info available in the program currently... :(
+            size_t jump_to = context.label(_label);
             context._frame_stack.push(context._position);
             context._position = jump_to;
         }

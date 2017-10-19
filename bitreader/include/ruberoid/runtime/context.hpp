@@ -24,9 +24,17 @@ namespace rb::runtime
         }
 
         //----------------------------------------------------------------------
-        field::ptr field(const std::string& name)
+        field::ptr get_field(const std::string& name)
         {
             return (_fields.count(name) > 0) ? _fields[name] : nullptr;
+        }
+
+        //----------------------------------------------------------------------
+        void set_field(const std::string& name, value_ptr val)
+        {
+            auto new_field = std::make_shared<field>(name);
+            new_field->set_value(val);
+            _fields[name] = new_field;
         }
 
         //----------------------------------------------------------------------
@@ -38,12 +46,18 @@ namespace rb::runtime
         //----------------------------------------------------------------------
         value_ptr get(const std::string& name)
         {
-            auto f = field(name);
-            if (!field) {
+            auto f = get_field(name);
+            if (!f) {
                 throw std::runtime_error("Field " + name + " is missing from the context");
             }
 
-            return f->value();
+            return f->get_value();
+        }
+
+        //----------------------------------------------------------------------
+        const std::string& type() const
+        {
+            return _type;
         }
     private:
         std::string _type;

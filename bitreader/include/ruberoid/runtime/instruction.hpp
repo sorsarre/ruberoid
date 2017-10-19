@@ -11,17 +11,8 @@ namespace rb::runtime
     public:
         using ptr = std::shared_ptr<instruction>;
 
-        instruction(const std::string& name_, const std::vector<std::string>& operands_)
-            : name(name_)
-            , operands(operands_)
-        {
-
-        }
-
-        std::string name;
-        std::vector<std::string> operands;
-
         virtual void exec(execution_context& context, common::bitreader& reader) = 0;
+        virtual ~instruction() = default;
     };
 
     using program = std::vector<instruction::ptr>;

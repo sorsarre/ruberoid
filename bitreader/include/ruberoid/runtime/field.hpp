@@ -18,13 +18,13 @@ namespace rb::runtime
         }
 
         //----------------------------------------------------------------------
-        void set(value_ptr value)
+        void set_value(value_ptr value)
         {
             _value = value;
         }
 
         //----------------------------------------------------------------------
-        value_ptr value()
+        value_ptr get_value()
         {
             return _value;
         }
@@ -32,7 +32,7 @@ namespace rb::runtime
         //----------------------------------------------------------------------
         operator bool() const
         {
-            return _value;
+            return (_value != nullptr);
         }
 
         //----------------------------------------------------------------------

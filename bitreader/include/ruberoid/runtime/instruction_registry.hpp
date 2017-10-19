@@ -21,7 +21,7 @@ namespace rb::runtime
         template<typename Instr>
         size_t register_instruction()
         {
-            _registry.emplace(Instr::name, [] (const instruction_args& args) -> auto {
+            _registry.emplace(Instr::name(), [] (const instruction_args& args) -> auto {
                 return std::make_shared<Instr>(args);
             });
             return _registry.size();
@@ -45,10 +45,16 @@ namespace rb::runtime
         }
 
     private:
-        instruction_registry() = default;
+        instruction_registry()
+        {
+            register_instructions();
+        }
+
         instruction_registry(const instruction_registry&) = delete;
         instruction_registry(instruction_registry&&) = delete;
         instruction_registry& operator=(const instruction_registry&) = delete;
+
+        void register_instructions();
 
         std::unordered_map<std::string, instruction_factory> _registry;
     };

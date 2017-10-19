@@ -6,19 +6,20 @@ namespace rb::runtime::instructions
     class slote: public instruction
     {
     public:
-        static constexpr const std::string name = "slote";
+        static const std::string name() { return "slote"; }
 
         //----------------------------------------------------------------------
-        slote(const std::vector<std::string>& args) = default;
+        slote(const std::vector<std::string>& args)
+        {
+
+        }
 
         //----------------------------------------------------------------------
         virtual void exec(execution_context& context, common::bitreader& reader)
         {
-            auto new_slot = std::make_shared<value>();
             auto arr = context._slot_stack.top()->get<array::ptr>();
-            new_slot->set(new_array);
+            auto new_slot = std::make_shared<value>();
             arr->add(new_slot);
-            context._context_stack.top()->field(_field_name)->set(new_slot);
             context._slot_stack.push(new_slot);
         }
     };

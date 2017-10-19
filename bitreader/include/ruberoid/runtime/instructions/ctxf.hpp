@@ -6,15 +6,18 @@ namespace rb::runtime::instructions
     class ctxf: public instruction
     {
     public:
-        static constexpr const std::string name = "ctxf";
+        static const std::string name() { return "ctxf"; }
 
         //----------------------------------------------------------------------
-        ctxf(const std::vector<std::string>& args) = default;
+        ctxf(const std::vector<std::string>& args)
+        {
+
+        }
 
         //----------------------------------------------------------------------
         virtual void exec(execution_context& context, common::bitreader& reader)
         {
-            context._context_stack.pop();
+            context._context_stack.pop_context();
         }
     };
 }
