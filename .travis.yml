@@ -12,6 +12,7 @@ addons:
       - gcc-7
       - g++-7
       - cmake
+      - libboost-all-dev
 install:
   - pushd ~
   # Install cmake 3.9.4
