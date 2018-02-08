@@ -73,7 +73,7 @@ namespace rb::runtime
             });
 
             assert((iter != _state.rend()) && "Context scope not found!");
-            _state.erase(iter.base(), _state.end());
+            _state.erase(iter.base()-1, _state.end());
         }
 
         //----------------------------------------------------------------------
