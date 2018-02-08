@@ -10,6 +10,7 @@
 #include "ruberoid/runtime/instructions/slotd.hpp"
 #include "ruberoid/runtime/instructions/slote.hpp"
 #include "ruberoid/runtime/instructions/slotf.hpp"
+#include "ruberoid/runtime/instructions/var.hpp"
 
 using namespace rb::runtime;
 
@@ -53,7 +54,8 @@ void rb::runtime::instruction_registry::register_instructions()
         slota,
         slotd,
         slote,
-        slotf
+        slotf,
+        var
     > type_list;
 
     register_helper(*this, type_list);
