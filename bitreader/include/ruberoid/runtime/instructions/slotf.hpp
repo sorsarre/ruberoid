@@ -22,6 +22,14 @@ namespace rb::runtime::instructions
             context._slot_stack.push(new_slot);
         }
 
+        //----------------------------------------------------------------------
+        std::string to_string() override
+        {
+            std::ostringstream oss;
+            oss << name();
+            return oss.str();
+        }
+
     private:
         std::string _field_name;
     };

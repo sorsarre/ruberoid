@@ -21,5 +21,13 @@ namespace rb::runtime::instructions
             auto new_array = std::make_shared<array>();
             slot->set(new_array);
         }
+
+        //----------------------------------------------------------------------
+        std::string to_string() override
+        {
+            std::ostringstream oss;
+            oss << name();
+            return oss.str();
+        }
     };
 }

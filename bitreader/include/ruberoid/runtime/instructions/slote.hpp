@@ -22,5 +22,13 @@ namespace rb::runtime::instructions
             arr->add(new_slot);
             context._slot_stack.push(new_slot);
         }
+
+        //----------------------------------------------------------------------
+        std::string to_string() override
+        {
+            std::ostringstream oss;
+            oss << name();
+            return oss.str();
+        }
     };
 }

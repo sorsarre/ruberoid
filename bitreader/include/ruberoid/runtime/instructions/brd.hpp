@@ -48,7 +48,16 @@ namespace rb::runtime::instructions
         void exec(execution_context& context, common::bitreader& reader) override
         {
             auto value = context._context_stack.resolve(_target);
-            value->set(reader.read<T>(_bits));
+            auto data = reader.read<T>(_bits);
+            value->set(data);
+        }
+
+        //----------------------------------------------------------------------
+        std::string to_string() override
+        {
+            std::ostringstream oss;
+            oss << name() << " " << _target << " " << _bits;
+            return oss.str();
         }
 
     private:

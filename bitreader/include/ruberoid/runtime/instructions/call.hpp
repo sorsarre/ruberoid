@@ -23,6 +23,14 @@ namespace rb::runtime::instructions
             context._position = jump_to;
         }
 
+        //----------------------------------------------------------------------
+        std::string to_string() override
+        {
+            std::ostringstream oss;
+            oss << name() << " " << _label;
+            return oss.str();
+        }
+
     private:
         std::string _label;
     };

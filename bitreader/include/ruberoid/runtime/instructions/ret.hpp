@@ -20,5 +20,13 @@ namespace rb::runtime::instructions
             context._position = context._frame_stack.top();
             context._frame_stack.pop();
         }
+
+        //----------------------------------------------------------------------
+        std::string to_string() override
+        {
+            std::ostringstream oss;
+            oss << name();
+            return oss.str();
+        }
     };
 }

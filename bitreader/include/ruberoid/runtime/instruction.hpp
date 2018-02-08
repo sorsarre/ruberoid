@@ -12,6 +12,7 @@ namespace rb::runtime
         using ptr = std::shared_ptr<instruction>;
 
         virtual void exec(execution_context& context, common::bitreader& reader) = 0;
+        virtual std::string to_string() = 0;
         virtual ~instruction() = default;
     };
 

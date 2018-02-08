@@ -29,6 +29,14 @@ namespace rb::runtime::instructions
             ctx._context_stack.push_scope(new_scope);
         }
 
+        //----------------------------------------------------------------------
+        std::string to_string() override
+        {
+            std::ostringstream oss;
+            oss << name() << " " << _ctxid;
+            return oss.str();
+        }
+
     private:
         std::string _ctxid;
     };
