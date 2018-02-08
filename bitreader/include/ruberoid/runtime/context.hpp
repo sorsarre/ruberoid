@@ -59,8 +59,24 @@ namespace rb::runtime
         {
             return _type;
         }
+
+        //----------------------------------------------------------------------
+        using map_type = std::unordered_map<std::string, field::ptr>;
+        using const_iterator = map_type::const_iterator;
+
+        //----------------------------------------------------------------------
+        const_iterator begin() const
+        {
+            return _fields.begin();
+        }
+
+        //----------------------------------------------------------------------
+        const_iterator end() const
+        {
+            return _fields.end();
+        }
     private:
         std::string _type;
-        std::unordered_map<std::string, field::ptr> _fields;
+        map_type _fields;
     };
 }
