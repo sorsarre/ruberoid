@@ -23,14 +23,20 @@ namespace rb::runtime
         }
 
         //----------------------------------------------------------------------
-        value::ptr exec(const program& prog, common::bitreader& reader)
+        void exec(const program& prog, common::bitreader& reader, execution_context& ctx)
         {
-            execution_context ctx;
+            auto default_ctx = std::make_shared<context>("__structure");
+            ctx._context_stack.push_context(default_ctx);
+
+            auto new_slot = std::make_shared<value>();
+            ctx._context_stack.current_context()->set_field("__contents", new_slot);
+            ctx._slot_stack.push(new_slot);
+
             while (ctx._position < prog.size()) {
                 exec_next(prog, ctx, reader);
             }
 
-            return ctx._context_stack.top()->get("__structure");
+            ctx._slot_stack.pop();
         }
     };
 }
