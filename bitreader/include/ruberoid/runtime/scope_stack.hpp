@@ -98,8 +98,14 @@ namespace rb::runtime
             assert((iter != _state.rend()) && "No context found in stack!");
             return iter->ctx;
         }
-    private:
+
+        //----------------------------------------------------------------------
         using scope_container = std::vector<scope>;
+        const scope_container& state()
+        {
+            return _state;
+        }
+    private:
         using scope_iterator = scope_container::iterator;
         using scope_reverse_iterator = scope_container::reverse_iterator;
 
