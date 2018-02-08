@@ -114,7 +114,7 @@ namespace rb::runtime
         //----------------------------------------------------------------------
         operator bool() const
         {
-            return (_kind == kind::null) || (!_actual.has_value());
+            return (_kind != kind::null) && (_actual.has_value());
         }
 
     private:
