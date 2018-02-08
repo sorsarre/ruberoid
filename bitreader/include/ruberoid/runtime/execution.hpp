@@ -3,6 +3,8 @@
 #include "ruberoid/runtime/execution_context.hpp"
 #include "ruberoid/bitreader/bitreader.hpp"
 
+#include <iostream>
+
 namespace rb::runtime
 {
     class execution
@@ -16,6 +18,7 @@ namespace rb::runtime
         {
             const auto& instr = prog.at(context._position);
             ++context._position;
+            std::cout << "[INSTR] " << instr->to_string() << std::endl;
             instr->exec(context, reader);
         }
 
