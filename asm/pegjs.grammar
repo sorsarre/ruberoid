@@ -1,0 +1,72 @@
+// Simple Arithmetics Grammar
+// ==========================
+//
+// Accepts expressions like "2 * (3 + 4)" and computes their value.
+
+{
+
+function generateInstruction(stmt)
+{
+	switch(stmt.kind) {
+    	case "rdmanip":
+        	switch(stmt.op) {
+            	case "skip": return [ ["bskp", stmt.bits.toString()] ];
+                case "align": return [ ["baln", stmt.bits.toString() ] ];
+                default: break;
+            }
+            break;
+
+        case "field":
+        	switch(stmt.type.kind) {
+            	case "int":
+                	return [
+                    	["slotf", stmt.name],
+                        ["brdu32", stmt.type.bits.toString()],
+                        ["slotd"]
+                    ];
+                default:
+                	return [];
+            }
+           	break;
+        default:
+        	return [];
+    }
+}
+
+}
+
+
+StructureDeclaration
+	= "struct" _ name:Id _ contents:StructureBody {
+    	var preamble = [ ["label", name], ["ctxc", name] ];
+        var ending = [ ["ctxf"] ];
+        var body = [].concat.apply([], contents.map(generateInstruction));
+    	return [].concat.apply([], [preamble, body, ending]).map(x => x.join(" ")).join("\n")
+    }
+
+StructureBody
+	= "{" _ contents:Statement* _ "}" { return contents; }
+
+Statement
+	= d:ReaderOperator _ ";" _ { return d; }
+    / d: FieldDeclaration _ ";" _ { return d; }
+
+ReaderOperator
+	= "skip" _ bits:Integer { return { kind: "rdmanip", op: "skip", bits: bits }; }
+    / "align" _ bits:Integer { return { kind: "rdmanip", op: "align", bits: bits }; }
+
+FieldDeclaration
+	= _ type:TypeSpec _ name:Id _ { return {kind: "field", name: name, type: type}; }
+
+TypeSpec
+	= "int" _ "(" bits:Integer _ ")" { return { kind: "int", bits: bits }; }
+
+Id
+	= [a-zA-Z_]+[a-zA-Z_0-9]* { return text(); }
+
+
+Integer "integer"
+  = _ [0-9]+ { return parseInt(text(), 10); }
+
+_ "whitespace"
+  = [ \t\n\r]*
