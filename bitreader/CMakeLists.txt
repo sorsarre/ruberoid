@@ -56,6 +56,11 @@ add_library(rbruntime SHARED ${RUNTIME_SOURCES} ${RUNTIME_HEADERS})
 target_include_directories(rbruntime PRIVATE ${CMAKE_CURRENT_LIST_DIR}/src)
 target_include_directories(rbruntime PUBLIC ${CMAKE_CURRENT_LIST_DIR}/include)
 
+############# ENN #1
+set(ENN1_SOURCES src/enn1.cpp)
+add_executable(enn1 ${ENN1_SOURCES})
+target_link_libraries(enn1 rbruntime)
+
 ############# Unit tests
 enable_testing()
 find_package(GTest REQUIRED)
