@@ -48,6 +48,7 @@ set(RUNTIME_HEADERS
         include/ruberoid/runtime/instructions/slote.hpp
         include/ruberoid/runtime/instructions/slotf.hpp
         include/ruberoid/runtime/scope_stack.hpp
+        include/ruberoid/runtime/instructions/baln.hpp
         include/ruberoid/runtime/instructions/var.hpp)
 
 add_library(rbruntime SHARED ${RUNTIME_SOURCES} ${RUNTIME_HEADERS})
