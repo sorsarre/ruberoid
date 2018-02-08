@@ -11,6 +11,7 @@
 #include "ruberoid/runtime/instructions/slote.hpp"
 #include "ruberoid/runtime/instructions/slotf.hpp"
 #include "ruberoid/runtime/instructions/baln.hpp"
+#include "ruberoid/runtime/instructions/bskp.hpp"
 #include "ruberoid/runtime/instructions/var.hpp"
 
 using namespace rb::runtime;
@@ -41,6 +42,7 @@ void rb::runtime::instruction_registry::register_instructions()
 
     id_type<
         baln,
+        bskp,
         brd<uint8_t>,
         brd<uint16_t>,
         brd<uint32_t>,
