@@ -79,8 +79,13 @@ namespace rb::runtime
         //----------------------------------------------------------------------
         context::ptr current_scope()
         {
-            assert(!_state.empty() && "Stack is empty! No current scope!");
+            if (_state.empty() || !_state.back().is_scope)
+            {
+                push_scope(std::make_shared<context>(""));
+            }
+
             return _state.back().ctx;
+            //assert(!_state.empty() && "Stack is empty! No current scope!");
         }
 
         //----------------------------------------------------------------------
