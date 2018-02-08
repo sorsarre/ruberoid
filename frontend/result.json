@@ -1,0 +1,332 @@
+{
+  "kind": "ns",
+  "name": "h262",
+  "content": [
+    {
+      "kind": "decl",
+      "type": "enum",
+      "name": "start_codes",
+      "entries": [
+        {
+          "id": "picture_start_code",
+          "value": {
+            "kind": "expr",
+            "type": "lit",
+            "value": "0x00000100"
+          }
+        },
+        {
+          "id": "slice_start_code",
+          "value": {
+            "kind": "expr",
+            "type": "lit",
+            "value": {
+              "kind": "literal",
+              "type": "range",
+              "start": "0x00000101",
+              "end": "0x000001AF"
+            }
+          }
+        },
+        {
+          "id": "user_data_start_code",
+          "value": {
+            "kind": "expr",
+            "type": "lit",
+            "value": "0x000001B2"
+          }
+        },
+        {
+          "id": "sequence_header_code",
+          "value": {
+            "kind": "expr",
+            "type": "lit",
+            "value": "0x000001B3"
+          }
+        },
+        {
+          "id": "sequence_error_code",
+          "value": {
+            "kind": "expr",
+            "type": "lit",
+            "value": "0x000001B4"
+          }
+        },
+        {
+          "id": "extension_start_code",
+          "value": {
+            "kind": "expr",
+            "type": "lit",
+            "value": "0x000001B5"
+          }
+        },
+        {
+          "id": "sequence_end_code",
+          "value": {
+            "kind": "expr",
+            "type": "lit",
+            "value": "0x000001B7"
+          }
+        },
+        {
+          "id": "group_start_code",
+          "value": {
+            "kind": "expr",
+            "type": "lit",
+            "value": "0x000001B8"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "decl",
+      "type": "func",
+      "args": [],
+      "name": "next_start_code",
+      "content": [
+        {
+          "kind": "expr",
+          "type": "call",
+          "func": "br_align",
+          "args": [
+            {
+              "kind": "expr",
+              "type": "lit",
+              "value": 8
+            }
+          ]
+        },
+        {
+          "kind": "stmt",
+          "type": "while",
+          "cond": {
+            "kind": "expr",
+            "type": "binop",
+            "op1": {
+              "kind": "expr",
+              "type": "call",
+              "func": "br_peek",
+              "args": [
+                {
+                  "kind": "expr",
+                  "type": "lit",
+                  "value": 24
+                }
+              ]
+            },
+            "op": "!=",
+            "op2": {
+              "kind": "expr",
+              "type": "lit",
+              "value": "0x000001"
+            }
+          },
+          "content": [
+            {
+              "kind": "expr",
+              "type": "call",
+              "func": "br_skip",
+              "args": [
+                {
+                  "kind": "expr",
+                  "type": "lit",
+                  "value": 8
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "decl",
+      "type": "struct",
+      "name": "sequence_header",
+      "content": [
+        {
+          "kind": "decl",
+          "type": "field",
+          "typespec": {
+            "name": "bslbf",
+            "params": [
+              32
+            ]
+          },
+          "name": "sequence_header_code"
+        },
+        {
+          "kind": "decl",
+          "type": "field",
+          "typespec": {
+            "name": "uimsbf",
+            "params": [
+              12
+            ]
+          },
+          "name": "horizontal_size_value"
+        },
+        {
+          "kind": "decl",
+          "type": "field",
+          "typespec": {
+            "name": "uimsbf",
+            "params": [
+              12
+            ]
+          },
+          "name": "vertical_size_value"
+        },
+        {
+          "kind": "decl",
+          "type": "field",
+          "typespec": {
+            "name": "uimsbf",
+            "params": [
+              4
+            ]
+          },
+          "name": "aspect_ratio_information"
+        },
+        {
+          "kind": "decl",
+          "type": "field",
+          "typespec": {
+            "name": "uimsbf",
+            "params": [
+              4
+            ]
+          },
+          "name": "frame_rate_code"
+        },
+        {
+          "kind": "decl",
+          "type": "field",
+          "typespec": {
+            "name": "uimsbf",
+            "params": [
+              18
+            ]
+          },
+          "name": "bit_rate_value"
+        },
+        {
+          "kind": "decl",
+          "type": "field",
+          "typespec": {
+            "name": "bslbf",
+            "params": [
+              1
+            ]
+          },
+          "name": "marker_bit"
+        },
+        {
+          "kind": "decl",
+          "type": "field",
+          "typespec": {
+            "name": "uimsbf",
+            "params": [
+              10
+            ]
+          },
+          "name": "vbv_buffer_size_value"
+        },
+        {
+          "kind": "decl",
+          "type": "field",
+          "typespec": {
+            "name": "bslbf",
+            "params": [
+              1
+            ]
+          },
+          "name": "constrained_parameters_flag"
+        },
+        {
+          "kind": "decl",
+          "type": "field",
+          "typespec": {
+            "name": "uimbsf",
+            "params": [
+              1
+            ]
+          },
+          "name": "load_intra_quantiser_matrix"
+        },
+        {
+          "kind": "stmt",
+          "type": "cond",
+          "cond": {
+            "kind": "expr",
+            "type": "ref",
+            "ref": "load_intra_quantiser_matrix"
+          },
+          "bt": [
+            {
+              "kind": "decl",
+              "type": "field",
+              "typespec": {
+                "name": "uimbsf",
+                "params": [
+                  8
+                ],
+                "type": "array",
+                "dim": {
+                  "kind": "expr",
+                  "type": "lit",
+                  "value": 64
+                }
+              },
+              "name": "intra_quantizer_matrix"
+            }
+          ]
+        },
+        {
+          "kind": "decl",
+          "type": "field",
+          "typespec": {
+            "name": "uimsbf",
+            "params": [
+              1
+            ]
+          },
+          "name": "load_non_intra_quantiser_matrix"
+        },
+        {
+          "kind": "stmt",
+          "type": "cond",
+          "cond": {
+            "kind": "expr",
+            "type": "ref",
+            "ref": "load_non_intra_quantiser_matrix"
+          },
+          "bt": [
+            {
+              "kind": "decl",
+              "type": "field",
+              "typespec": {
+                "name": "uimbsf",
+                "params": [
+                  8
+                ],
+                "type": "array",
+                "dim": {
+                  "kind": "expr",
+                  "type": "lit",
+                  "value": 64
+                }
+              },
+              "name": "non_intra_quantiser_matrix"
+            }
+          ]
+        },
+        {
+          "kind": "expr",
+          "type": "call",
+          "func": "next_start_code",
+          "args": []
+        }
+      ]
+    }
+  ]
+}

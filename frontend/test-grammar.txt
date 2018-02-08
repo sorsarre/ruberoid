@@ -1,0 +1,212 @@
+// Simple Arithmetics Grammar
+// Binary parser grammar
+
+Namespace
+	= KW_NAMESPACE _ name:Identifier _ content:Block _ {
+			return {kind: "ns", name: name, content: content};
+        }
+
+Block
+	= BLOCK_OPEN _ elements:BlockElement* _ BLOCK_CLOSE { return elements; }
+
+BlockElement
+	= _ b:Block _ { return b; }
+    / _ ds:DeclarationStructured { return ds; }
+    / _ s:Statement { return s; }
+    
+Statement
+	= StatementIf
+    / StatementWhile
+    / di:DeclarationInline _ END_STATEMENT { return di; }
+    / e:Expression _ END_STATEMENT { return e; }
+    / Block
+
+StatementIf
+	= KW_IF _ "(" _ e:Expression _ ")" _ st:Statement { return {kind: "stmt", type: "cond", cond: e, bt: st}; }
+    // TODO: Add ELSE section
+
+StatementWhile
+	= KW_WHILE _ "(" _ e:Expression _ ")" _ st:Statement { return {kind: "stmt", type: "while", cond: e, content: st}; }
+
+Expression
+	= ExprTier1
+
+FunctionCall
+	= _ name:Identifier _ "(" _ args:FunctionCallArgs? _ ")" _ { return {kind: "expr", type: "call", func: name, args: args ? args : []}; }
+
+FunctionCallArgs
+	= _ first:Expression _ rest:FunctionCallArgSecondary* _ {
+    		return [first].concat(rest ? rest : [])
+    	}
+
+FunctionCallArgSecondary
+	= _ "," e:Expression _ { return e; }
+
+Declaration
+	= DeclarationStructured
+    / DeclarationInline
+
+DeclarationStructured
+	= DeclarationEnum
+    / DeclarationStructure
+    / DeclarationFunction
+
+DeclarationInline
+	= DeclarationVariable
+    / DeclarationField
+    
+DeclarationStructure
+	= _ KW_STRUCTURE _ name:Identifier _ content:Block _ { return {kind: "decl", type: "struct", name: name, content: content}; }
+
+DeclarationFunction
+	= _ KW_FUNCTION _ name:Identifier _ args:DeclarationFunctionArgs _ content:Block _ {
+    		return {kind: "decl", type: "func", args: args ? args : [], name: name, content: content};
+    	}
+
+DeclarationFunctionArgs
+	= "(" _ args:FormalArgsList? _ ")" { return args; }
+
+FormalArgsList
+	= _ first:FormalArg _ rest:FormalArgsSecondary* _ {
+    		return [first].concat(rest ? rest : [])
+        }
+
+FormalArgsSecondary
+	= _ "," _ a:FormalArg _ { return a; }
+    
+    
+FormalArg
+	= name:Identifier { return name; }
+
+DeclarationVariable
+	= _ KW_VARIABLE _ type:TypeSpecifier _ name:Identifier _ {
+    		return {kind: "decl", type: "var", typespec: type, name: name};
+    	}
+
+DeclarationField
+	= _ type:TypeSpecifier _ name:Identifier _ "[" _ dim:Expression? _ "]" {
+    		return {kind: "decl", type: "field", typespec: Object.assign({}, type, {type: "array", dim: dim}), name: name};
+        }
+	/ _ type:TypeSpecifier _ name:Identifier {
+    		return {kind: "decl", type: "field", typespec: type, name: name};
+        }
+
+TypeSpecifier
+	= _ id:Identifier _ params:ActualParamList? _ { return {name: id, params: params}; }
+
+ActualParamList
+	= "(" _ l:Literal _ ")" { return [l]; }
+    
+Literal
+	= LiteralRange
+    / LiteralNumeric
+    
+LiteralNumeric
+	= HexInteger
+    / Integer
+    
+LiteralRange
+	= _ start:LiteralNumeric _ ".." _ end:LiteralNumeric _ {
+    		return {kind: "literal", type: "range", start: start, end: end};
+        }
+
+DeclarationEnum
+	= _ KW_ENUM _ name:Identifier _ BLOCK_OPEN _ entries:EnumEntryDefinition+ _ BLOCK_CLOSE {
+    		return { kind: "decl", type: "enum", name: name, entries: entries };
+    	}
+
+EnumEntryDefinition
+	= _ e:EnumEntryDefinitionAssignment _ { return e; }
+    / _ e:EnumEntryDefinitionSimple _ { return e; }
+
+EnumEntryDefinitionSimple
+	= _ id:Identifier _ { return { id: id }; }
+
+EnumEntryDefinitionAssignment
+	= _ id:Identifier _ ASSIGN _ value:Expression _ { return { id: id, value: value }; }
+
+CommentSingleLine = _ "//" _ ANYTHING _ NEWLINE _
+
+Identifier
+	= [_a-zA-Z][_a-zA-Z0-9]* { return text(); }
+
+Integer "integer"
+  = _ [0-9]+ { return parseInt(text(), 10); }
+
+HexInteger
+  = "0x" [0-9A-F]+ { return text(); }
+
+CommonTerm
+	= "(" _ e:Expression _ ")" { return e; }
+    / l:Literal { return {kind: "expr", type: "lit", value: l}; }
+	/ fc:FunctionCall { return fc; }
+    / id:Identifier { return {kind: "expr", type: "ref", ref: id}; }
+
+// Tier 1
+OP_OR = "||"
+OP_AND = "&&"
+
+OpTier1 = OP_OR / OP_AND
+
+ExprTier1
+	= op1:TermTier1 _ op:OpTier1 _ op2:TermTier1 { return {kind: "expr", type: "binop", op1: op1, op: op, op2: op2}; }
+    / TermTier1
+
+TermTier1
+	= ExprTier2
+    / CommonTerm
+
+// Tier 2
+OP_EQ = "=="
+OP_NEQ = "!="
+OP_LE = "<="
+OP_GE = ">="
+OP_LT = "<"
+OP_GT = ">"
+
+OpTier2 = OP_EQ / OP_NEQ / OP_LE / OP_GE / OP_LT / OP_GT
+
+ExprTier2
+	= op1:TermTier2 _ op:OpTier2 _ op2:TermTier2 { return {kind: "expr", type: "binop", op1: op1, op: op, op2: op2}; }
+    / TermTier2
+
+TermTier2
+	= ExprTier3
+	/ CommonTerm
+    
+OP_LSHIFT = "<<"
+OP_RSHIFT = ">>"
+
+OpTier3 = OP_LSHIFT / OP_RSHIFT
+
+ExprTier3
+	= op1:TermTier3 _ op:OpTier3 _ op2:TermTier3 { return {kind: "expr", type: "binop", op1: op1, op: op, op2: op2}; }
+    / TermTier3
+    
+TermTier3 = CommonTerm
+
+OP_XOR = "^"
+
+
+OP_NOT = "!"
+
+KW_IF = "if"
+KW_ELSE = "else"
+KW_STRUCTURE = "structure"
+KW_ENUM = "enum"
+KW_NAMESPACE = "namespace"
+KW_VARIABLE = "variable"
+KW_FUNCTION = "function"
+KW_WHILE = "while"
+
+ANYTHING = .*
+NEWLINE = [\r]?[\n]
+BLOCK_OPEN = "{"
+BLOCK_CLOSE = "}"
+ASSIGN = "="
+
+END_STATEMENT = ";"
+
+_ "whitespace"
+  = [ \t\n\r]*
+              

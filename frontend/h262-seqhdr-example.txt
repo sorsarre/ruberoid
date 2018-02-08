@@ -1,0 +1,43 @@
+namespace h262 {
+  enum start_codes {
+    picture_start_code = 0x00000100
+    slice_start_code = 0x00000101..0x000001AF
+    user_data_start_code = 0x000001B2
+    sequence_header_code = 0x000001B3
+    sequence_error_code = 0x000001B4
+    extension_start_code = 0x000001B5
+    sequence_end_code = 0x000001B7
+    group_start_code = 0x000001B8
+  }
+
+  function next_start_code() {
+    br_align(8);
+    while( br_peek(24) != 0x000001 ) {
+      br_skip(8);
+    }
+  }
+
+  structure sequence_header {
+    bslbf(32) sequence_header_code;
+    uimsbf(12) horizontal_size_value;
+    uimsbf(12) vertical_size_value;
+    uimsbf(4) aspect_ratio_information;
+    uimsbf(4) frame_rate_code;
+    uimsbf(18) bit_rate_value;
+    bslbf(1) marker_bit;
+    uimsbf(10) vbv_buffer_size_value;
+    bslbf(1) constrained_parameters_flag;
+
+    uimbsf(1) load_intra_quantiser_matrix;
+    if (load_intra_quantiser_matrix) {
+        uimbsf(8) intra_quantizer_matrix[64];
+    }
+
+    uimsbf(1) load_non_intra_quantiser_matrix;
+    if (load_non_intra_quantiser_matrix) {
+        uimbsf(8) non_intra_quantiser_matrix[64];
+    }
+
+    next_start_code();
+  }
+}
