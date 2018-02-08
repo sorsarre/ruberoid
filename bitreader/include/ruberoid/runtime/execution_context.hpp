@@ -25,7 +25,7 @@ namespace rb::runtime
             return iter->second;
         }
 
-        size_t _position;
+        size_t _position = 0;
         context_stack _context_stack;
         slot_stack _slot_stack;
         frame_stack _frame_stack;
